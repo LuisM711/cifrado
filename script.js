@@ -50,7 +50,7 @@ cifrar = () => {
     txtAreaMetodo.textContent = "";
     let textoClaro = String(tbTextoClaro.value).toUpperCase();
     let k = (tbK.value);
-    if (!textoClaro) {
+     if (!textoClaro) {
         avisoError("No hay texto claro");
         return false;
     }
@@ -75,22 +75,35 @@ cifrar = () => {
 }
 descifrar = () => {
     txtAreaMetodo.textContent = "";
+    let textoCifrado = String(tbTextoCifrado.value);
+    let k = (tbK.value);
     switch (Number(selectMetodo.value)) {
         case 1:
-            let textoCifrado = String(tbTextoCifrado.value);
-            let k = (tbK.value);
             if (!textoCifrado) {
                 avisoError("No hay texto cifrado");
                 return false;
             }
             if (!(/^[0-9]\d*$/).test(k)) {
-                avisoError("No hay `k` para cifrar");
+                avisoError("No hay `k` para descifrar");
                 return false;
             }
             tbTextoDescifrado.value = descifrarCesar(Number(k), textoCifrado);
             break;
         case 2:
-
+            if (!textoCifrado) {
+                avisoError("No hay texto cifrado");
+                return false;
+            }
+            if (!(/^[0-9]\d*$/).test(k)) {
+                avisoError("No hay `k` para descifrar");
+                return false;
+            }
+            if(!tablaDeBloques)
+            {
+                avisoError("No se ha generado una tabla anteriormente, genere una cifrando algun dato");
+                return false;
+            }
+            tbTextoDescifrado.value = descifrarBloques(k,textoCifrado);
             break;
         case 3:
 
@@ -254,6 +267,7 @@ descifrarCesar = (k, texto) => {
         }
         textoDescifrado += letra;
     }
+    println(`Uniendo todos los remplazos quedaría: ${textoDescifrado}`);
     return textoDescifrado;
 }
 cifrarBloques = (k = 0, texto = "") => {
@@ -292,6 +306,35 @@ cifrarBloques = (k = 0, texto = "") => {
 
 
     return textoCifrado;
+}
+descifrarBloques = (k = 0, textoCifrado = "") => {
+    textoCifrado = textoCifrado.split(',');
+    let textoDescifrado = "";
+    let tabla = tablaDeBloques;
+    println(`Basandose en la tabla generada anteriormente...`);
+    tablaDeBloques = tabla;
+    let descifrado = [];
+    let unidadDescifrada = [];
+    let binario = "";
+    for (let i = 0; i < textoCifrado.length; i++) {
+        //debugger;
+        unidadDescifrada = [];
+        const elemento = textoCifrado[i];
+        println(`Descifrando el binario: ${elemento.replaceAll('.','')}, posicion: ${i}`);
+        binario = elemento.split('.');
+        binario.forEach(element => {
+            // println(`Conversion de dicha letra a binario(ASCII): ${binario}`);
+            unidadDescifrada.push(obtenerCorrespondenciaInv(tabla, element));
+            println(`Correspondencia del binario [${element}] con la tabla -> [${unidadDescifrada[unidadDescifrada.length-1]}]`);
+        });
+        descifrado.push(String.fromCharCode(parseInt(unidadDescifrada.join(''),2)));
+        println(`Concatenación del elemento: ${unidadDescifrada.join('')} como ASCII: ${descifrado[descifrado.length-1]}`);
+        print("\n");
+        
+    }
+    textoDescifrado = descifrado.join('');
+    println(`Uniendo todas las concatenaciones quedaría: ${textoDescifrado}`);
+    return textoDescifrado;
 }
 ascii = (a) => {
     //console.log(a,a.charCodeAt(0));
@@ -367,6 +410,13 @@ obtenerCorrespondencia = (tabla = [], entrada = "") => {
     let correspondencia = -1;
     tabla.forEach(element => {
         element.entrada == entrada ? correspondencia = element.salida : 0
+    });
+    return correspondencia;
+}
+obtenerCorrespondenciaInv = (tabla = [], salida = "") => {
+    let correspondencia = -1;
+    tabla.forEach(element => {
+        element.salida == salida ? correspondencia = element.entrada : 0
     });
     return correspondencia;
 }
