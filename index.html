@@ -40,8 +40,23 @@
                 <input type="text" id="tbTextoDescifrado" placeholder="Texto descifrado">
             </div>
             <div id="th3">
-                k: <input type="text" id="tbK" placeholder="k">
-                Patrón:<input type="text" id="tbPatron" placeholder="Patrón">
+                <div class="input-wrapper">
+                    <label for="tbK">k:</label>
+                    <input type="text" id="tbK" placeholder="k">
+                </div>
+                <div class="input-wrapper">
+                    <label for="tbPatron">Patrón:</label>
+                    <input type="text" id="tbPatron" placeholder="Patrón">
+                </div>
+                <div class="input-wrapper">
+                    <label for="tbP">p:</label>
+                    <input type="text" id="tbP" placeholder="p">
+                </div>
+                <div class="input-wrapper">
+                    <label for="tbQ">q:</label>
+                    <input type="text" id="tbQ" placeholder="q">
+                </div>
+                
             </div>
         </div>
 
@@ -58,6 +73,18 @@
         </div>
     </div>
     <style>
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+        }
+        .input-wrapper input {
+            width: 100%;
+        }
+
+        .input-wrapper label {
+            margin-right: 10px;
+        }
+
         .modal {
             position: fixed;
             top: 0;

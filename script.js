@@ -1,8 +1,11 @@
+let clavePublica = {};
+let clavePrivada = {};
 let tablaDeBloques = false;
 onload = (event) => {
     selectMetodo.addEventListener('change', selectChange);
     selectMetodo.addEventListener('load', selectChange());
     tablaDeBloques = false;
+    //console.log(cifrarRSA(13, 17, "L"));
 }
 
 selectChange = () => {
@@ -16,6 +19,8 @@ selectChange = () => {
             setSoloLectura("tbK", false);
             setSoloLectura("tbPatron", true);
             setSoloLectura("txtAreaMetodo", true);
+            setSoloLectura("tbP", true);
+            setSoloLectura("tbQ", true);
 
 
             break;
@@ -24,17 +29,21 @@ selectChange = () => {
             setSoloLectura("tbTextoCifrado", false);
             setSoloLectura("tbTextoDescifrado", false);
             setSoloLectura("tbK", false);
-            setSoloLectura("tbPatron", false);
+            setSoloLectura("tbPatron", true);
             setSoloLectura("txtAreaMetodo", true);
+            setSoloLectura("tbP", true);
+            setSoloLectura("tbQ", true);
 
             break;
         case 3:
             setSoloLectura("tbTextoClaro", false);
             setSoloLectura("tbTextoCifrado", false);
             setSoloLectura("tbTextoDescifrado", false);
-            setSoloLectura("tbK", false);
-            setSoloLectura("tbPatron", false);
+            setSoloLectura("tbK", true);
+            setSoloLectura("tbPatron", true);
             setSoloLectura("txtAreaMetodo", true);
+            setSoloLectura("tbP", false);
+            setSoloLectura("tbQ", false);
 
             break;
 
@@ -46,27 +55,55 @@ selectChange = () => {
 
 }
 cifrar = () => {
+    clavePublica = {};
+    clavePrivada = {};
     tablaDeBloques = false;
     txtAreaMetodo.textContent = "";
     let textoClaro = String(tbTextoClaro.value).toUpperCase();
+    tbTextoClaro.value = textoClaro;
     let k = (tbK.value);
-     if (!textoClaro) {
+    if (!textoClaro) {
         avisoError("No hay texto claro");
         return false;
     }
-    if (!(/^[0-9]\d*$/).test(k)) {
-        avisoError("No hay `k` para cifrar");
-        return false;
-    }
+
     switch (Number(selectMetodo.value)) {
         case 1:
+            if (!(/^[0-9]\d*$/).test(k)) {
+                avisoError("No hay `k` para cifrar");
+                return false;
+            }
             tbTextoCifrado.value = cifrarCesar(Number(k), textoClaro);
             break;
         case 2:
+            if (!(/^[0-9]\d*$/).test(k)) {
+                avisoError("No hay `k` para cifrar");
+                return false;
+            }
             tbTextoCifrado.value = cifrarBloques(Number(k), textoClaro);
             break;
         case 3:
-
+            let p = String(tbP.value);
+            let q = String(tbQ.value);
+            p = Number(p);
+            q = Number(q);
+            if (!(/^[0-9]\d*$/).test(p) || !(/^[0-9]\d*$/).test(q)) {
+                avisoError("Valores de p y/o q no son validos");
+                return false;
+            }
+            if (!esPrimo(p)) {
+                avisoError(`El valor de p: ${p} no es primo`);
+                return false;
+            }
+            if (!esPrimo(q)) {
+                avisoError(`El valor de q: ${q} no es primo`);
+                return false;
+            }
+            if (p == q) {
+                avisoError("Los valores no deben ser iguales");
+                return false;
+            }
+            tbTextoCifrado.value = cifrarRSA(p, q, textoClaro);
             break;
 
     }
@@ -77,12 +114,12 @@ descifrar = () => {
     txtAreaMetodo.textContent = "";
     let textoCifrado = String(tbTextoCifrado.value);
     let k = (tbK.value);
+    if (!textoCifrado) {
+        avisoError("No hay texto cifrado");
+        return false;
+    }
     switch (Number(selectMetodo.value)) {
         case 1:
-            if (!textoCifrado) {
-                avisoError("No hay texto cifrado");
-                return false;
-            }
             if (!(/^[0-9]\d*$/).test(k)) {
                 avisoError("No hay `k` para descifrar");
                 return false;
@@ -90,23 +127,23 @@ descifrar = () => {
             tbTextoDescifrado.value = descifrarCesar(Number(k), textoCifrado);
             break;
         case 2:
-            if (!textoCifrado) {
-                avisoError("No hay texto cifrado");
-                return false;
-            }
+
             if (!(/^[0-9]\d*$/).test(k)) {
                 avisoError("No hay `k` para descifrar");
                 return false;
             }
-            if(!tablaDeBloques)
-            {
+            if (!tablaDeBloques) {
                 avisoError("No se ha generado una tabla anteriormente, genere una cifrando algun dato");
                 return false;
             }
-            tbTextoDescifrado.value = descifrarBloques(k,textoCifrado);
+            tbTextoDescifrado.value = descifrarBloques(k, textoCifrado);
             break;
         case 3:
-
+            if (!(clavePrivada.n > 0)) {
+                avisoError("No se han generados las claves mediante los primos `p` y `q`");
+                return false;
+            }
+            tbTextoDescifrado.value = descifrarRSA(textoCifrado);
             break;
 
     }
@@ -129,19 +166,35 @@ verTabla = () => {
             let string = `Abecedario normal = ${abecedarioNormal[0]}\nAbecedario (k=${k}) = ${abecedarioCifrado[0]}`;
             mostrarModal(string);
             break;
-        case 2: 
-        if(!tablaDeBloques){
-            avisoError("No se ha generado una tabla para el cifrado de bloques");
-            return false;
-        }
-        mostrarModal(JSON.stringify(tablaDeBloques));
-        break;
-        case 3: break;
+        case 2:
+            if (!tablaDeBloques) {
+                avisoError("No se ha generado una tabla para el cifrado de bloques");
+                return false;
+            }
+            mostrarModal(JSON.stringify(tablaDeBloques));
+            break;
+        case 3:
+            if (clavePrivada.d >= 0) {
+                let str = `Clave pública:[${clavePublica.n},${clavePublica.e}]\n`
+                str += `Clave privada:[${clavePrivada.n},${clavePrivada.d}]\n`
+                mostrarModal(str);
+
+            }
+            else {
+                avisoError("No se han generados las claves mediante los primos `p` y `q`");
+                return false;
+            }
+            // let str = `Clave pública: ${JSON.stringify(clavePublica)}\n`;
+            // str += `Clave privada: ${JSON.stringify(clavePrivada)}`;
+
+            break;
     }
 
 
 }
 limpiar = () => {
+    clavePublica = {};
+    clavePrivada = {};
     selectMetodo.value = "1";
     tbTextoClaro.value = "";
     tbTextoCifrado.value = "";
@@ -149,7 +202,14 @@ limpiar = () => {
     tbK.value = "";
     tbPatron.value = "";
     txtAreaMetodo.textContent = "";
+    setSoloLectura("tbTextoClaro", false);
+    setSoloLectura("tbTextoCifrado", false);
+    setSoloLectura("tbTextoDescifrado", false);
+    setSoloLectura("tbK", false);
     setSoloLectura("tbPatron", true);
+    setSoloLectura("txtAreaMetodo", true);
+    setSoloLectura("tbP", true);
+    setSoloLectura("tbQ", true);
 
 }
 print = (txt = "") => {
@@ -162,7 +222,14 @@ setSoloLectura = (id, readOnly = false) => {
     let elemento = document.getElementById(id);
     if (elemento) {
         elemento.readOnly = readOnly;
-        readOnly ? elemento.classList.add("readOnly") : elemento.classList.remove("readOnly");
+        if (readOnly) {
+            elemento.classList.add("readOnly");
+            if (elemento.type == "text")
+                elemento.value = "";
+            else if (elemento.type == "textarea")
+                elemento.textContent = "";
+        }
+        else elemento.classList.remove("readOnly");
     }
     else console.log("Elemento inexistente");
 }
@@ -293,7 +360,7 @@ cifrarBloques = (k = 0, texto = "") => {
         println(`Separacion en grupos de (k=${k}): ${binario.reverse().join(',')}`);
         binario.forEach(element => {
             unidadCifrada.push(obtenerCorrespondencia(tabla, element));
-            println(`Correspondencia del binario [${element}] con la tabla -> [${unidadCifrada[unidadCifrada.length-1]}]`);
+            println(`Correspondencia del binario [${element}] con la tabla -> [${unidadCifrada[unidadCifrada.length - 1]}]`);
         });
         println("");
         cifrado.push(unidadCifrada.join('.'));
@@ -320,20 +387,119 @@ descifrarBloques = (k = 0, textoCifrado = "") => {
         //debugger;
         unidadDescifrada = [];
         const elemento = textoCifrado[i];
-        println(`Descifrando el binario: ${elemento.replaceAll('.','')}, posicion: ${i}`);
+        println(`Descifrando el binario: ${elemento.replaceAll('.', '')}, posicion: ${i}`);
         binario = elemento.split('.');
         binario.forEach(element => {
             // println(`Conversion de dicha letra a binario(ASCII): ${binario}`);
             unidadDescifrada.push(obtenerCorrespondenciaInv(tabla, element));
-            println(`Correspondencia del binario [${element}] con la tabla -> [${unidadDescifrada[unidadDescifrada.length-1]}]`);
+            println(`Correspondencia del binario [${element}] con la tabla -> [${unidadDescifrada[unidadDescifrada.length - 1]}]`);
         });
-        descifrado.push(String.fromCharCode(parseInt(unidadDescifrada.join(''),2)));
-        println(`Concatenación del elemento: ${unidadDescifrada.join('')} como ASCII: ${descifrado[descifrado.length-1]}`);
+        descifrado.push(String.fromCharCode(parseInt(unidadDescifrada.join(''), 2)));
+        println(`Concatenación del elemento: ${unidadDescifrada.join('')} como ASCII: ${descifrado[descifrado.length - 1]}`);
         print("\n");
-        
+
     }
     textoDescifrado = descifrado.join('');
     println(`Uniendo todas las concatenaciones quedaría: ${textoDescifrado}`);
+    return textoDescifrado;
+}
+cifrarRSA = (p, q, texto) => {
+    let textoCifrado = [];
+    println(`Valores de [p,q]: [${p},${q}]`);
+    let n = p * q;
+    println(`n = p * q`);
+    println(`n: (${p})*(${q}) = ${n}`);
+    let z = (p - 1) * (q - 1);
+    println(`z = (p - 1) * (q - 1)`);
+    println(`z: (${p}) * (${q}) = ${z} `);
+    let e = 0;
+    let d = 0;
+    println("Encontrando los primos relativos");
+    println(`Calcular e donde i < e < n`);
+    println(`e = máximo comun divisor -> MCD(z,e) = 1`);
+    for (let i = 2; i < n; i++) {
+        if (obtenerMCD(z, i) == 1) {
+            e = i; break;
+        }
+
+    }
+    println(`Valor de e: ${e}`);
+    println(`Calcular d donde (e * d)𝑚𝑜𝑑 z = 1 o ((e * d) - 1) 𝑚𝑜𝑑 z = 0`);
+    for (let i = 1; i < 1024; i++) {
+        if (((e * i) - 1) % z == 0) {
+            d = i;
+            if (d != e)
+                break;
+        }
+    }
+    println(`Valor de d: ${d}`);
+    // console.log(n,e);
+    // console.log(n,d)
+    println(`Clave pública = [n,e]: [${n},${e}]`);
+    println(`Clave privada = [n,d]: [${n},${d}]`);
+    print('\n');
+    clavePublica = { n, e };
+    clavePrivada = { n, d };
+    /*
+    Cifrado : c = m^e mod n
+    Descifrado : m = c^d mod n
+            donde m < n
+    */
+    for (let i = 0; i < texto.length; i++) {
+        let letra = texto[i];
+        println(`Cifrando la letra: ${letra}, posición: ${i}`);
+        let m = Number(ascii(letra));
+        println(`El código ascii de dicha letra es: ${m}`);
+        //console.log(m,n);
+        if (!(m < n)) {
+            avisoError(`El valor del dato que se quiere cifrar 'm' debe ser menor a n: (p*q), debe utilizar numeros primos mas grandes`);
+            return "M debe ser menor que N";
+        }
+        println(`Valor cifrado 'c' = m^e mod n`);
+        let c = (Math.pow(m, e)) % n;
+        println(`c = (${m}^${e}) mod (${n})`);
+        println(`c = ${c}`);
+        println(`Se remplaza ${letra} -> ${c}`);
+        textoCifrado.push(c);
+        print('\n');
+    }
+    textoCifrado = textoCifrado.join(',');
+    println(`Uniendo todos los remplazos queda: ${textoCifrado}`);
+
+
+
+
+
+
+    return textoCifrado;
+}
+descifrarRSA = (cifrado = "") => {
+    let textoDescifrado = "";
+    let str = `Clave pública:[${clavePublica.n},${clavePublica.e}]\n`
+    str += `Clave privada:[${clavePrivada.n},${clavePrivada.d}]\n`
+    print(str);
+    println(`Descifrado 'm' = c^d mod n donde m < n y 'c' es lo cifrado`);
+    println(`Texto a descifrar: ${cifrado}`);
+    let arr = cifrado.split(',');
+    /*
+    Cifrado : c = m^e mod n
+    Descifrado : m = c^d mod n
+            donde m < n
+    */
+
+    let arrDescifrado = [];
+    arr.forEach((element, index) => {
+        // element = parseInt(element,2);
+        element = Number(element);
+        println(`Descifrando ${element}, posición ${index}`);
+        let m = powMod(element, clavePrivada.d, clavePrivada.n)
+        println(`m: ${element}^${clavePrivada.d} % ${clavePrivada.n} = ${m}`);
+        let letra = String.fromCharCode(m);
+        println(`Resultado: m = ${m} a texto(ASCII) ->${letra}`);
+        arrDescifrado.push(letra);
+    });
+    textoDescifrado = arrDescifrado.join('');
+    println(`Uniendo los resultados queda ${textoDescifrado}`);
     return textoDescifrado;
 }
 ascii = (a) => {
@@ -467,5 +633,39 @@ partirStringEnGrupos = (texto, k) => {
 
     return grupos;
 }
+esPrimo = (numero) => {
+    if (numero <= 1) {
+        return false;
+    }
+
+    for (let i = 2; i <= Math.sqrt(numero); i++) {
+        if (numero % i === 0) {
+            return false;
+        }
+    }
+
+    return true;
+}
+obtenerMCD = (numero1, numero2) => {
+    if (numero2 === 0) {
+        return numero1;
+    }
+
+    return obtenerMCD(numero2, numero1 % numero2);
+}
 
 
+powMod = (base, exponent, modulus) => {
+    let result = 1;
+
+    while (exponent > 0) {
+        if (exponent % 2 === 1) {
+            result = (result * base) % modulus;
+        }
+
+        base = (base * base) % modulus;
+        exponent = Math.floor(exponent / 2);
+    }
+
+    return result;
+}
