@@ -37,33 +37,45 @@
                 </select>
                 <input type="text" id="tbTextoClaro" placeholder="Texto en claro">
                 <input type="text" id="tbTextoCifrado" placeholder="Texto cifrado">
-                <input type="text" id="tbTextoDescifrado" placeholder="Texto descifrado">
+                <input type="text" id="tbTextoDescifrado" readonly placeholder="Texto descifrado">
             </div>
             <div id="th3">
-                <div class="input-wrapper">
+                <div class="input-wrapper tbK">
                     <label for="tbK">k:</label>
                     <input type="text" id="tbK" placeholder="k">
                 </div>
-                <div class="input-wrapper">
+                <div class="input-wrapper tbChar">
+                    <label for="tbChar">Salida caracter:</label>
+                    <input type="text" id="tbChar" placeholder="k" readonly>
+                </div>
+                <!-- <div class="input-wrapper tbPatron">
                     <label for="tbPatron">Patrón:</label>
                     <input type="text" id="tbPatron" placeholder="Patrón">
-                </div>
-                <div class="input-wrapper">
+                </div> -->
+                <div class="input-wrapper tbP">
                     <label for="tbP">p:</label>
                     <input type="text" id="tbP" placeholder="p">
                 </div>
-                <div class="input-wrapper">
+                <div class="input-wrapper tbQ">
                     <label for="tbQ">q:</label>
                     <input type="text" id="tbQ" placeholder="q">
                 </div>
-                
+                <div class="input-wrapper tbClavePublica">
+                    <label for="tbClavePublica">Clave pública:</label>
+                    <input type="text" id="tbClavePublica" placeholder="[n, e]">
+                </div>
+                <div class="input-wrapper tbClavePrivada">
+                    <label for="tbClavePrivada">Clave privada:</label>
+                    <input type="text" id="tbClavePrivada" placeholder="[n, d]">
+                </div>
+
             </div>
         </div>
 
         <div id="proceso">
 
             <label for="txtAreaMetodo">Metodo: </label>
-            <textarea id="txtAreaMetodo"></textarea>
+            <textarea id="txtAreaMetodo" readonly></textarea>
             <div id="botones" class="col">
                 <button class="btnOpc" onclick="verTabla()">Ver tabla</button>
                 <button class="btnOpc" onclick="cifrar()">Cifrar</button>
@@ -72,17 +84,45 @@
             </div>
         </div>
     </div>
+    <div class="row footer">
+        <div class="col">
+            <h5 class="text-uppercase mb-3">Equipo 7</h5>
+            <p>Este software fue hecho en 2023 por el Equipo 7:</p>
+            <ul class="list-unstyled">
+                <li>Luis Mario Lopez Reyes</li>
+                <li>Armando Alfonso Torres Garcia</li>
+                <li>Ramon de Jesus Ruiz Castro</li>
+                <li>Aidin Veronica Niebla Castro</li>
+            </ul>
+        </div>
+        <div class="col">
+            <h5 class="text-uppercase mb-3">Derechos reservados</h5>
+            <p class="text-muted mb-0">&copy; 2023 Equipo 7. Todos los derechos reservados.</p>
+        </div>
+    </div>
     <style>
+        .footer {
+            margin-top: 450px;
+        }
         .input-wrapper {
             display: flex;
             align-items: center;
+            justify-content: space-between;
         }
+
         .input-wrapper input {
             width: 100%;
         }
 
         .input-wrapper label {
             margin-right: 10px;
+        }
+
+        .input-wrapper>#tbClavePublica,
+        #tbClavePrivada,
+        #tbChar {
+            width: 60%;
+            justify-content: space-between;
         }
 
         .modal {
@@ -130,7 +170,8 @@
         }
 
         .readOnly {
-            cursor: not-allowed;
+            /* cursor: not-allowed; */
+            display: none;
         }
 
         .alert {

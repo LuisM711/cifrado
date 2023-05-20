@@ -1,11 +1,9 @@
-let clavePublica = {};
-let clavePrivada = {};
 let tablaDeBloques = false;
 onload = (event) => {
     selectMetodo.addEventListener('change', selectChange);
     selectMetodo.addEventListener('load', selectChange());
     tablaDeBloques = false;
-    //console.log(cifrarRSA(13, 17, "L"));
+
 }
 
 selectChange = () => {
@@ -13,37 +11,32 @@ selectChange = () => {
 
     switch (selectedValue) {
         case 1:
-            setSoloLectura("tbTextoClaro", false);
-            setSoloLectura("tbTextoCifrado", false);
-            setSoloLectura("tbTextoDescifrado", false);
             setSoloLectura("tbK", false);
-            setSoloLectura("tbPatron", true);
-            setSoloLectura("txtAreaMetodo", true);
             setSoloLectura("tbP", true);
             setSoloLectura("tbQ", true);
+            setSoloLectura("tbClavePrivada", true);
+            setSoloLectura("tbClavePublica", true);
+            setSoloLectura("tbChar", true);
 
 
             break;
         case 2:
-            setSoloLectura("tbTextoClaro", false);
-            setSoloLectura("tbTextoCifrado", false);
-            setSoloLectura("tbTextoDescifrado", false);
             setSoloLectura("tbK", false);
-            setSoloLectura("tbPatron", true);
-            setSoloLectura("txtAreaMetodo", true);
             setSoloLectura("tbP", true);
             setSoloLectura("tbQ", true);
+            setSoloLectura("tbClavePrivada", true);
+            setSoloLectura("tbClavePublica", true);
+            setSoloLectura("tbChar", false);
 
             break;
         case 3:
-            setSoloLectura("tbTextoClaro", false);
-            setSoloLectura("tbTextoCifrado", false);
-            setSoloLectura("tbTextoDescifrado", false);
             setSoloLectura("tbK", true);
-            setSoloLectura("tbPatron", true);
-            setSoloLectura("txtAreaMetodo", true);
             setSoloLectura("tbP", false);
             setSoloLectura("tbQ", false);
+            setSoloLectura("tbClavePrivada", false);
+            setSoloLectura("tbClavePublica", false);
+            setSoloLectura("tbChar", true);
+
 
             break;
 
@@ -87,6 +80,8 @@ cifrar = () => {
             let q = String(tbQ.value);
             p = Number(p);
             q = Number(q);
+            tbClavePublica.textContent = "";
+            tbClavePrivada.textContent = "";
             if (!(/^[0-9]\d*$/).test(p) || !(/^[0-9]\d*$/).test(q)) {
                 avisoError("Valores de p y/o q no son validos");
                 return false;
@@ -114,6 +109,8 @@ descifrar = () => {
     txtAreaMetodo.textContent = "";
     let textoCifrado = String(tbTextoCifrado.value);
     let k = (tbK.value);
+    let clavePublica = tbClavePublica.value;
+    let clavePrivada = tbClavePrivada.value;
     if (!textoCifrado) {
         avisoError("No hay texto cifrado");
         return false;
@@ -139,11 +136,15 @@ descifrar = () => {
             tbTextoDescifrado.value = descifrarBloques(k, textoCifrado);
             break;
         case 3:
-            if (!(clavePrivada.n > 0)) {
-                avisoError("No se han generados las claves mediante los primos `p` y `q`");
+            // if (!(clavePrivada.n > 0)) {
+            //     avisoError("No se han generados las claves mediante los primos `p` y `q`");
+            //     return false;
+            // }
+            if (clavePublica == '' || clavePrivada == '') {
+                avisoError("No hay claves publicas y privadas para descifrar");
                 return false;
             }
-            tbTextoDescifrado.value = descifrarRSA(textoCifrado);
+            tbTextoDescifrado.value = descifrarRSA(textoCifrado, clavePublica, clavePrivada);
             break;
 
     }
@@ -174,15 +175,26 @@ verTabla = () => {
             mostrarModal(JSON.stringify(tablaDeBloques));
             break;
         case 3:
-            if (clavePrivada.d >= 0) {
-                let str = `Clave pública:[${clavePublica.n},${clavePublica.e}]\n`
-                str += `Clave privada:[${clavePrivada.n},${clavePrivada.d}]\n`
-                mostrarModal(str);
+            let clavePublica = tbClavePublica.value;
+            let clavePrivada = tbClavePrivada.value;
+            if (clavePublica == '' || clavePrivada == '') {
+                avisoError("No se han generados las claves mediante los primos `p` y `q`");
+                return false;
+
 
             }
             else {
-                avisoError("No se han generados las claves mediante los primos `p` y `q`");
-                return false;
+                clavePublica = {
+                    n: Number(clavePublica.split(',')[0]),
+                    e: Number(clavePublica.split(',')[1])
+                }
+                clavePrivada = {
+                    n: Number(clavePrivada.split(',')[0]),
+                    d: Number(clavePrivada.split(',')[1])
+                }
+                let str = `Clave pública:[${clavePublica.n},${clavePublica.e}]\n`
+                str += `Clave privada:[${clavePrivada.n},${clavePrivada.d}]\n`
+                mostrarModal(str);
             }
             // let str = `Clave pública: ${JSON.stringify(clavePublica)}\n`;
             // str += `Clave privada: ${JSON.stringify(clavePrivada)}`;
@@ -200,16 +212,17 @@ limpiar = () => {
     tbTextoCifrado.value = "";
     tbTextoDescifrado.value = "";
     tbK.value = "";
-    tbPatron.value = "";
     txtAreaMetodo.textContent = "";
-    setSoloLectura("tbTextoClaro", false);
-    setSoloLectura("tbTextoCifrado", false);
-    setSoloLectura("tbTextoDescifrado", false);
+    tbP.value = "";
+    tbQ.value = "";
+    tbClavePublica.value = "";
+    tbClavePrivada.value = "";
     setSoloLectura("tbK", false);
-    setSoloLectura("tbPatron", true);
-    setSoloLectura("txtAreaMetodo", true);
     setSoloLectura("tbP", true);
     setSoloLectura("tbQ", true);
+    setSoloLectura("tbClavePrivada", true);
+    setSoloLectura("tbClavePublica", true);
+    setSoloLectura("tbChar", true);
 
 }
 print = (txt = "") => {
@@ -218,20 +231,33 @@ print = (txt = "") => {
 println = (txt = "") => {
     txtAreaMetodo.textContent += txt + "\n";
 }
+// setSoloLectura = (id, readOnly = false) => {
+//     let elemento = document.getElementById(id);
+//     if (elemento) {
+//         elemento.readOnly = readOnly;
+//         if (readOnly) {
+//             elemento.classList.add("readOnly");
+//             if (elemento.type == "text")
+//                 elemento.value = "";
+//             else if (elemento.type == "textarea")
+//                 elemento.textContent = "";
+//         }
+//         else elemento.classList.remove("readOnly");
+//     }
+//     else console.log("Elemento inexistente");
+// }
+
 setSoloLectura = (id, readOnly = false) => {
-    let elemento = document.getElementById(id);
+    //let elemento = document.getElementById(id);
+    let elemento = document.querySelector(`.${id}`);
     if (elemento) {
         elemento.readOnly = readOnly;
         if (readOnly) {
             elemento.classList.add("readOnly");
-            if (elemento.type == "text")
-                elemento.value = "";
-            else if (elemento.type == "textarea")
-                elemento.textContent = "";
         }
         else elemento.classList.remove("readOnly");
     }
-    else console.log("Elemento inexistente");
+    else console.log(`No se encontro '${id}'`);
 }
 
 
@@ -438,8 +464,10 @@ cifrarRSA = (p, q, texto) => {
     println(`Clave pública = [n,e]: [${n},${e}]`);
     println(`Clave privada = [n,d]: [${n},${d}]`);
     print('\n');
-    clavePublica = { n, e };
-    clavePrivada = { n, d };
+    let clavePublica = { n, e };
+    let clavePrivada = { n, d };
+    tbClavePublica.value = `${clavePublica.n},${clavePublica.e}`;
+    tbClavePrivada.value = `${clavePrivada.n},${clavePrivada.d}`;
     /*
     Cifrado : c = m^e mod n
     Descifrado : m = c^d mod n
@@ -473,10 +501,21 @@ cifrarRSA = (p, q, texto) => {
 
     return textoCifrado;
 }
-descifrarRSA = (cifrado = "") => {
+descifrarRSA = (cifrado = "", clavePublica, clavePrivada) => {
     let textoDescifrado = "";
-    let str = `Clave pública:[${clavePublica.n},${clavePublica.e}]\n`
-    str += `Clave privada:[${clavePrivada.n},${clavePrivada.d}]\n`
+    // let str = `Clave pública:[${clavePublica.n},${clavePublica.e}]\n`
+    // str += `Clave privada:[${clavePrivada.n},${clavePrivada.d}]\n`
+    let str = `Clave pública: [${clavePublica}]\n`;
+    str += `Clave privada: [${clavePrivada}]\n`;
+    clavePublica = {
+        n: Number(clavePublica.split(',')[0]),
+        e: Number(clavePublica.split(',')[1])
+    }
+    clavePrivada = {
+        n: Number(clavePrivada.split(',')[0]),
+        d: Number(clavePrivada.split(',')[1])
+    }
+
     print(str);
     println(`Descifrado 'm' = c^d mod n donde m < n y 'c' es lo cifrado`);
     println(`Texto a descifrar: ${cifrado}`);
