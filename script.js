@@ -364,6 +364,8 @@ descifrarCesar = (k, texto) => {
     return textoDescifrado;
 }
 cifrarBloques = (k = 0, texto = "") => {
+    console.clear();
+    tbChar.value = '';
     let textoCifrado = "";
     let potencia = Math.pow(2, k);
     let tabla = generarTablaBinariaAleatoria(k);
@@ -388,6 +390,8 @@ cifrarBloques = (k = 0, texto = "") => {
             unidadCifrada.push(obtenerCorrespondencia(tabla, element));
             println(`Correspondencia del binario [${element}] con la tabla -> [${unidadCifrada[unidadCifrada.length - 1]}]`);
         });
+        console.log(unidadCifrada.join('') +'   '+ parseInt(unidadCifrada.join(''),2));
+        tbChar.value += `${String.fromCharCode(parseInt(unidadCifrada.join(''),2))}`;
         println("");
         cifrado.push(unidadCifrada.join('.'));
 
@@ -447,7 +451,6 @@ cifrarRSA = (p, q, texto) => {
         if (obtenerMCD(z, i) == 1) {
             e = i; break;
         }
-
     }
     println(`Valor de e: ${e}`);
     println(`Calcular d donde (e * d)𝑚𝑜𝑑 z = 1 o ((e * d) - 1) 𝑚𝑜𝑑 z = 0`);
@@ -459,8 +462,6 @@ cifrarRSA = (p, q, texto) => {
         }
     }
     println(`Valor de d: ${d}`);
-    // console.log(n,e);
-    // console.log(n,d)
     println(`Clave pública = [n,e]: [${n},${e}]`);
     println(`Clave privada = [n,d]: [${n},${d}]`);
     print('\n');
@@ -468,17 +469,11 @@ cifrarRSA = (p, q, texto) => {
     let clavePrivada = { n, d };
     tbClavePublica.value = `${clavePublica.n},${clavePublica.e}`;
     tbClavePrivada.value = `${clavePrivada.n},${clavePrivada.d}`;
-    /*
-    Cifrado : c = m^e mod n
-    Descifrado : m = c^d mod n
-            donde m < n
-    */
     for (let i = 0; i < texto.length; i++) {
         let letra = texto[i];
         println(`Cifrando la letra: ${letra}, posición: ${i}`);
         let m = Number(ascii(letra));
         println(`El código ascii de dicha letra es: ${m}`);
-        //console.log(m,n);
         if (!(m < n)) {
             avisoError(`El valor del dato que se quiere cifrar 'm' debe ser menor a n: (p*q), debe utilizar numeros primos mas grandes`);
             return "M debe ser menor que N";
@@ -493,18 +488,10 @@ cifrarRSA = (p, q, texto) => {
     }
     textoCifrado = textoCifrado.join(',');
     println(`Uniendo todos los remplazos queda: ${textoCifrado}`);
-
-
-
-
-
-
     return textoCifrado;
 }
 descifrarRSA = (cifrado = "", clavePublica, clavePrivada) => {
     let textoDescifrado = "";
-    // let str = `Clave pública:[${clavePublica.n},${clavePublica.e}]\n`
-    // str += `Clave privada:[${clavePrivada.n},${clavePrivada.d}]\n`
     let str = `Clave pública: [${clavePublica}]\n`;
     str += `Clave privada: [${clavePrivada}]\n`;
     clavePublica = {
@@ -515,7 +502,6 @@ descifrarRSA = (cifrado = "", clavePublica, clavePrivada) => {
         n: Number(clavePrivada.split(',')[0]),
         d: Number(clavePrivada.split(',')[1])
     }
-
     print(str);
     println(`Descifrado 'm' = c^d mod n donde m < n y 'c' es lo cifrado`);
     println(`Texto a descifrar: ${cifrado}`);
@@ -525,7 +511,6 @@ descifrarRSA = (cifrado = "", clavePublica, clavePrivada) => {
     Descifrado : m = c^d mod n
             donde m < n
     */
-
     let arrDescifrado = [];
     arr.forEach((element, index) => {
         // element = parseInt(element,2);
