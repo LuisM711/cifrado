@@ -3,12 +3,9 @@ onload = (event) => {
     selectMetodo.addEventListener('change', selectChange);
     selectMetodo.addEventListener('load', selectChange());
     tablaDeBloques = false;
-
 }
-
 selectChange = () => {
     const selectedValue = Number(selectMetodo.value);
-
     switch (selectedValue) {
         case 1:
             setSoloLectura("tbK", false);
@@ -17,8 +14,6 @@ selectChange = () => {
             setSoloLectura("tbClavePrivada", true);
             setSoloLectura("tbClavePublica", true);
             setSoloLectura("tbChar", true);
-
-
             break;
         case 2:
             setSoloLectura("tbK", false);
@@ -27,7 +22,6 @@ selectChange = () => {
             setSoloLectura("tbClavePrivada", true);
             setSoloLectura("tbClavePublica", true);
             setSoloLectura("tbChar", false);
-
             break;
         case 3:
             setSoloLectura("tbK", true);
@@ -36,16 +30,11 @@ selectChange = () => {
             setSoloLectura("tbClavePrivada", false);
             setSoloLectura("tbClavePublica", false);
             setSoloLectura("tbChar", true);
-
-
             break;
-
         default:
             console.log("fatal error");
             break;
     }
-
-
 }
 cifrar = () => {
     clavePublica = {};
@@ -59,7 +48,6 @@ cifrar = () => {
         avisoError("No hay texto claro");
         return false;
     }
-
     switch (Number(selectMetodo.value)) {
         case 1:
             if (!(/^[0-9]\d*$/).test(k)) {
@@ -69,8 +57,8 @@ cifrar = () => {
             tbTextoCifrado.value = cifrarCesar(Number(k), textoClaro);
             break;
         case 2:
-            if (!(/^[0-9]\d*$/).test(k)) {
-                avisoError("No hay `k` para cifrar");
+            if (!(/^[1-9]\d*$/).test(k)) {
+                avisoError("No hay `k` válida para cifrar");
                 return false;
             }
             tbTextoCifrado.value = cifrarBloques(Number(k), textoClaro);
@@ -100,10 +88,7 @@ cifrar = () => {
             }
             tbTextoCifrado.value = cifrarRSA(p, q, textoClaro);
             break;
-
     }
-
-
 }
 descifrar = () => {
     txtAreaMetodo.textContent = "";
@@ -136,19 +121,13 @@ descifrar = () => {
             tbTextoDescifrado.value = descifrarBloques(k, textoCifrado);
             break;
         case 3:
-            // if (!(clavePrivada.n > 0)) {
-            //     avisoError("No se han generados las claves mediante los primos `p` y `q`");
-            //     return false;
-            // }
             if (clavePublica == '' || clavePrivada == '') {
                 avisoError("No hay claves publicas y privadas para descifrar");
                 return false;
             }
             tbTextoDescifrado.value = descifrarRSA(textoCifrado, clavePublica, clavePrivada);
             break;
-
     }
-
 }
 verTabla = () => {
     switch (Number(selectMetodo.value)) {
@@ -161,18 +140,15 @@ verTabla = () => {
             k = Number(k);
             let abecedarioNormal = getAbecedario(0);
             let abecedarioCifrado = getAbecedario(k);
-            //mostrarModal(abecedarioNormal[0] + "\n" +abecedarioCifrado[0]);
-            // mostrarModal(`Abecedario normal = ${abecedarioNormal[0]}
-            // Abecedario (k=${k}) = ${abecedarioCifrado[0]}`);
-            let string = `Abecedario normal = ${abecedarioNormal[0]}\nAbecedario (k=${k}) = ${abecedarioCifrado[0]}`;
-            mostrarModal(string);
+            //let string = `Abecedario normal = ${abecedarioNormal[0]}\nAbecedario (k=${k}) = ${abecedarioCifrado[0]}`;
+            mostrarModalTabla(generarTabla(abecedarioNormal[0], abecedarioCifrado[0], k));
             break;
         case 2:
             if (!tablaDeBloques) {
                 avisoError("No se ha generado una tabla para el cifrado de bloques");
                 return false;
             }
-            mostrarModal(JSON.stringify(tablaDeBloques));
+            mostrarModalTabla(generarTablaJSON(tablaDeBloques));
             break;
         case 3:
             let clavePublica = tbClavePublica.value;
@@ -192,17 +168,13 @@ verTabla = () => {
                     n: Number(clavePrivada.split(',')[0]),
                     d: Number(clavePrivada.split(',')[1])
                 }
-                let str = `Clave pública:[${clavePublica.n},${clavePublica.e}]\n`
-                str += `Clave privada:[${clavePrivada.n},${clavePrivada.d}]\n`
-                mostrarModal(str);
+                // let str = `Clave pública:[${clavePublica.n},${clavePublica.e}]\n`
+                // str += `Clave privada:[${clavePrivada.n},${clavePrivada.d}]\n`
+                // mostrarModal(str);
+                mostrarModalTabla(generarTablaClaves(clavePublica, clavePrivada));
             }
-            // let str = `Clave pública: ${JSON.stringify(clavePublica)}\n`;
-            // str += `Clave privada: ${JSON.stringify(clavePrivada)}`;
-
             break;
     }
-
-
 }
 limpiar = () => {
     clavePublica = {};
@@ -231,24 +203,7 @@ print = (txt = "") => {
 println = (txt = "") => {
     txtAreaMetodo.textContent += txt + "\n";
 }
-// setSoloLectura = (id, readOnly = false) => {
-//     let elemento = document.getElementById(id);
-//     if (elemento) {
-//         elemento.readOnly = readOnly;
-//         if (readOnly) {
-//             elemento.classList.add("readOnly");
-//             if (elemento.type == "text")
-//                 elemento.value = "";
-//             else if (elemento.type == "textarea")
-//                 elemento.textContent = "";
-//         }
-//         else elemento.classList.remove("readOnly");
-//     }
-//     else console.log("Elemento inexistente");
-// }
-
 setSoloLectura = (id, readOnly = false) => {
-    //let elemento = document.getElementById(id);
     let elemento = document.querySelector(`.${id}`);
     if (elemento) {
         elemento.readOnly = readOnly;
@@ -259,44 +214,6 @@ setSoloLectura = (id, readOnly = false) => {
     }
     else console.log(`No se encontro '${id}'`);
 }
-
-
-
-
-
-
-
-
-
-
-
-// cifrarCesar = (k, texto = "") => {
-//     //console.log(k,texto);
-//     let t = [];
-//     for (let i = 0; i < texto.length; i++) {
-//         t.push(String.fromCharCode(ascii(texto[i]) + k));
-//     }
-//     return t.join('');
-// }
-// cifrarCesar = (k, texto) => {
-//     //debugger;
-//     println(`Texto en claro: ${texto}`);
-//     println(`Valor de k: ${k}`);
-//     let textoCifrado = "";
-//     for (let i = 0; i < texto.length; i++) {
-//         let letra = texto[i];
-//         if (letra.match(/[a-zA-ZñÑ]/)) {
-//             let codigo = texto.charCodeAt(i);
-//             println(`Claro[${i}] : ${letra}, ascii = ${codigo}`);
-//             codigo += k;
-//             letra = String.fromCharCode(codigo);
-//             println(`Cifrado[${i}] : ${codigo - k} + (k = ${k}) = ${codigo} -> ${letra}`);
-//             println(`Remplazo[${i}]: ${texto[i]} -> ${letra}\n`);
-//         }
-//         textoCifrado += letra;
-//     }
-//     return textoCifrado;
-// }
 cifrarCesar = (k, texto) => {
     let abecedarioNormal = getAbecedario(0)[0];
     k = k % abecedarioNormal.length;
@@ -314,33 +231,11 @@ cifrarCesar = (k, texto) => {
             println(`Remplazo[${i}]: ${texto[i]} -> ${letra}\n`);
         }
         textoCifrado += letra;
+        print('\n');
     }
+    println(`Uniendo todos los remplazos quedaría: ${textoCifrado}`);
     return textoCifrado;
 }
-
-
-
-// descifrarCesar = (k, texto = "") => {
-//     return cifrarCesar(-k, texto);
-// }
-// descifrarCesar = (k, textoCifrado = "") => {
-//     println(`Texto cifrado: ${textoCifrado}`);
-//     println(`Valor de k: ${k}`);
-//     let texto = "";
-//     for (let i = 0; i < textoCifrado.length; i++) {
-//         let letra = textoCifrado[i];
-//         if (letra.match(/[a-zA-ZñÑ]/)) {
-//             let codigo = textoCifrado.charCodeAt(i);
-//             println(`Cifrado[${i}] : ${letra}, ascii = ${codigo}`);
-//             codigo -= k;
-//             letra = String.fromCharCode(codigo);
-//             println(`Claro[${i}] : ${codigo - k} - (k = ${k}) = ${codigo} -> ${letra}`);
-//             println(`Remplazo[${i}]: ${textoCifrado[i]} -> ${letra}\n`);
-//         }
-//         texto += letra;
-//     }
-//     return texto;
-// }
 descifrarCesar = (k, texto) => {
     let abecedarioNormal = getAbecedario(0)[0];
     k = k % abecedarioNormal.length;
@@ -373,12 +268,10 @@ cifrarBloques = (k = 0, texto = "") => {
     println(`Valor de k: ${k}`);
     println(`Tabla generada, presione 'Ver tabla' para mirarla\n`);
     tablaDeBloques = tabla;
-    //console.log(tabla);
     let cifrado = [];
     let unidadCifrada = [];
     let binario = "";
     for (let i = 0; i < texto.length; i++) {
-
         unidadCifrada = [];
         const elemento = texto[i];
         println(`Cifrando letra: ${elemento}, posicion: ${i}`);
@@ -390,18 +283,12 @@ cifrarBloques = (k = 0, texto = "") => {
             unidadCifrada.push(obtenerCorrespondencia(tabla, element));
             println(`Correspondencia del binario [${element}] con la tabla -> [${unidadCifrada[unidadCifrada.length - 1]}]`);
         });
-        console.log(unidadCifrada.join('') +'   '+ parseInt(unidadCifrada.join(''),2));
-        tbChar.value += `${String.fromCharCode(parseInt(unidadCifrada.join(''),2))}`;
+        console.log(unidadCifrada.join('') + '   ' + parseInt(unidadCifrada.join(''), 2));
+        tbChar.value += `${String.fromCharCode(parseInt(unidadCifrada.join(''), 2))}`;
         println("");
         cifrado.push(unidadCifrada.join('.'));
-
     }
-    // console.log(binario);
-    // console.log(unidadCifrada);
-    // console.log(cifrado);
     textoCifrado = cifrado.join(',');
-
-
     return textoCifrado;
 }
 descifrarBloques = (k = 0, textoCifrado = "") => {
@@ -414,20 +301,17 @@ descifrarBloques = (k = 0, textoCifrado = "") => {
     let unidadDescifrada = [];
     let binario = "";
     for (let i = 0; i < textoCifrado.length; i++) {
-        //debugger;
         unidadDescifrada = [];
         const elemento = textoCifrado[i];
         println(`Descifrando el binario: ${elemento.replaceAll('.', '')}, posicion: ${i}`);
         binario = elemento.split('.');
         binario.forEach(element => {
-            // println(`Conversion de dicha letra a binario(ASCII): ${binario}`);
             unidadDescifrada.push(obtenerCorrespondenciaInv(tabla, element));
             println(`Correspondencia del binario [${element}] con la tabla -> [${unidadDescifrada[unidadDescifrada.length - 1]}]`);
         });
         descifrado.push(String.fromCharCode(parseInt(unidadDescifrada.join(''), 2)));
         println(`Concatenación del elemento: ${unidadDescifrada.join('')} como ASCII: ${descifrado[descifrado.length - 1]}`);
         print("\n");
-
     }
     textoDescifrado = descifrado.join('');
     println(`Uniendo todas las concatenaciones quedaría: ${textoDescifrado}`);
@@ -486,7 +370,7 @@ cifrarRSA = (p, q, texto) => {
         textoCifrado.push(c);
         print('\n');
     }
-    textoCifrado = textoCifrado.join(',');
+    textoCifrado = textoCifrado.join(' ');
     println(`Uniendo todos los remplazos queda: ${textoCifrado}`);
     return textoCifrado;
 }
@@ -505,7 +389,7 @@ descifrarRSA = (cifrado = "", clavePublica, clavePrivada) => {
     print(str);
     println(`Descifrado 'm' = c^d mod n donde m < n y 'c' es lo cifrado`);
     println(`Texto a descifrar: ${cifrado}`);
-    let arr = cifrado.split(',');
+    let arr = cifrado.split(' ');
     /*
     Cifrado : c = m^e mod n
     Descifrado : m = c^d mod n
@@ -527,28 +411,8 @@ descifrarRSA = (cifrado = "", clavePublica, clavePrivada) => {
     return textoDescifrado;
 }
 ascii = (a) => {
-    //console.log(a,a.charCodeAt(0));
     return a.charCodeAt(0);
 }
-// getAbecedario = (k) => {
-//     let mayusculas = [], minusculas = [];
-//     let i = 0;
-//     for (let index = 0; index <= 25; index++) {
-
-//         if ((i + k) <= 25) {
-//             minusculas.push(String.fromCharCode(97 + (i + k)));
-//             mayusculas.push(String.fromCharCode(65 + (i + k)));
-//         }
-//         else {
-//             minusculas.push('a');
-//             mayusculas.push('A');
-//             i = 0; k = 0;
-//         }
-
-//         i++;
-//     }
-//     return [mayusculas.join(''), minusculas.join('')];
-// }
 getAbecedario = (k) => {
     let abecedarioString = "abcdefghijklmnñopqrstuvwxyz".toUpperCase();
 
@@ -645,6 +509,32 @@ mostrarModal = (texto) => {
     modal.appendChild(contenido);
     document.body.appendChild(modal);
     modal.style.display = 'flex';
+    const alturaMaxima = window.innerHeight - 100; // Ajusta este valor según tus necesidades
+
+    // Aplicar el límite de altura máxima y hacer que el contenido sea desplazable
+    contenido.style.maxHeight = `${alturaMaxima}px`;
+    contenido.style.overflowY = 'auto';
+}
+mostrarModalTabla = (tabla) => {
+    const modal = document.createElement('div');
+    modal.classList.add('modal');
+    const contenido = document.createElement('div');
+    contenido.classList.add('modal-contenido');
+    //const textoModal = document.createElement('p');
+    //textoModal.textContent = texto;
+    const botonCerrar = document.createElement('button');
+    botonCerrar.textContent = 'Cerrar';
+    botonCerrar.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+    contenido.appendChild(tabla);
+    contenido.appendChild(botonCerrar);
+    modal.appendChild(contenido);
+    document.body.appendChild(modal);
+    modal.style.display = 'flex';
+    const alturaMaxima = window.innerHeight - 100;
+    contenido.style.maxHeight = `${alturaMaxima}px`;
+    contenido.style.overflowY = 'auto';
 }
 partirStringEnGrupos = (texto, k) => {
     let grupos = [];
@@ -693,3 +583,102 @@ powMod = (base, exponent, modulus) => {
 
     return result;
 }
+generarTablaJSON = (data) => {
+    if (!data || typeof data !== 'object') {
+        return '';
+    }
+    const tabla = document.createElement('table');
+    tabla.classList.add('table');
+    const encabezado = document.createElement('thead');
+    const encabezadoFila = document.createElement('tr');
+    const encabezadoEntrada = document.createElement('th');
+    const encabezadoSalida = document.createElement('th');
+    encabezadoEntrada.textContent = 'Entrada';
+    encabezadoSalida.textContent = 'Salida';
+    encabezadoFila.appendChild(encabezadoEntrada);
+    encabezadoFila.appendChild(encabezadoSalida);
+    encabezado.appendChild(encabezadoFila);
+    tabla.appendChild(encabezado);
+    const cuerpo = document.createElement('tbody');
+    data.forEach((registro) => {
+        const fila = document.createElement('tr');
+        const celdaEntrada = document.createElement('td');
+        const celdaSalida = document.createElement('td');
+        celdaEntrada.textContent = registro.entrada;
+        celdaSalida.textContent = registro.salida;
+        fila.appendChild(celdaEntrada);
+        fila.appendChild(celdaSalida);
+        cuerpo.appendChild(fila);
+    });
+    tabla.appendChild(cuerpo);
+    return tabla;
+};
+generarTabla = (abecedarioNormal, abecedarioK, k = 0) => {
+    if (!abecedarioNormal || !abecedarioK || typeof abecedarioNormal !== 'string' || typeof abecedarioK !== 'string') {
+        return '';
+    }
+    const tabla = document.createElement('table');
+    tabla.classList.add('table');
+    const encabezado = document.createElement('thead');
+    const encabezadoFila = document.createElement('tr');
+    const encabezadoNormal = document.createElement('th');
+    const encabezadoK = document.createElement('th');
+    encabezadoNormal.textContent = 'Abecedario Normal';
+    encabezadoK.textContent = `Abecedario (k = ${k})`;
+    encabezadoFila.appendChild(encabezadoNormal);
+    encabezadoFila.appendChild(encabezadoK);
+    encabezado.appendChild(encabezadoFila);
+    tabla.appendChild(encabezado);
+    const cuerpo = document.createElement('tbody');
+    const filas = Math.max(abecedarioNormal.length, abecedarioK.length);
+
+    for (let i = 0; i < filas; i++) {
+        const fila = document.createElement('tr');
+        const celdaNormal = document.createElement('td');
+        const celdaK = document.createElement('td');
+        const letraNormal = abecedarioNormal[i] || '';
+        const letraK = abecedarioK[i] || '';
+
+        celdaNormal.textContent = letraNormal;
+        celdaK.textContent = letraK;
+
+        fila.appendChild(celdaNormal);
+        fila.appendChild(celdaK);
+        cuerpo.appendChild(fila);
+    }
+    tabla.appendChild(cuerpo);
+    return tabla;
+};
+const generarTablaClaves = (clavePublica, clavePrivada) => {
+    if (!clavePublica || !clavePrivada || typeof clavePublica !== 'object' || typeof clavePrivada !== 'object') {
+        return '';
+    }
+    console.log(clavePublica);
+    const tabla = document.createElement('table');
+    tabla.classList.add('table');
+    const cuerpo = document.createElement('tbody');
+    const filaClavePublica = document.createElement('tr');
+    const celdaTituloClavePublica = document.createElement('td');
+    celdaTituloClavePublica.textContent = 'Clave pública:';
+    const celdaValorClavePublicaN = document.createElement('td');
+    celdaValorClavePublicaN.textContent = `n: ${clavePublica.n}`;
+    const celdaValorClavePublicaE = document.createElement('td');
+    celdaValorClavePublicaE.textContent = `e: ${clavePublica.e}`;
+    filaClavePublica.appendChild(celdaTituloClavePublica);
+    filaClavePublica.appendChild(celdaValorClavePublicaN);
+    filaClavePublica.appendChild(celdaValorClavePublicaE);
+    cuerpo.appendChild(filaClavePublica);
+    const filaClavePrivada = document.createElement('tr');
+    const celdaTituloClavePrivada = document.createElement('td');
+    celdaTituloClavePrivada.textContent = 'Clave privada:';
+    const celdaValorClavePrivadaN = document.createElement('td');
+    celdaValorClavePrivadaN.textContent = `n: ${clavePrivada.n}`;
+    const celdaValorClavePrivadaD = document.createElement('td');
+    celdaValorClavePrivadaD.textContent = `d: ${clavePrivada.d}`;
+    filaClavePrivada.appendChild(celdaTituloClavePrivada);
+    filaClavePrivada.appendChild(celdaValorClavePrivadaN);
+    filaClavePrivada.appendChild(celdaValorClavePrivadaD);
+    cuerpo.appendChild(filaClavePrivada);
+    tabla.appendChild(cuerpo);
+    return tabla;
+};
