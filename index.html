@@ -24,20 +24,27 @@
     <div id="form">
         <div id="thGeneral">
             <div id="th1">
-                <label for="selectMetodo">Método de cifrado: </label>
-                <label for="tbTextoClaro">Texto claro: </label>
-                <label for="tbTextoCifrado">Texto cifrado: </label>
-                <label for="tbTextoDescifrado">Texto descifrado: </label>
-            </div>
-            <div id="th2">
-                <select id="selectMetodo" class="">
-                    <option value="1" selected>Cifrado de césar</option>
-                    <option value="2">Cifrado de bloques simple</option>
-                    <option value="3">Algoritmo RSA</option>
-                </select>
-                <input type="text" id="tbTextoClaro" placeholder="Texto en claro">
-                <input type="text" id="tbTextoCifrado" placeholder="Texto cifrado">
-                <input type="text" id="tbTextoDescifrado" readonly placeholder="Texto descifrado">
+                <div class="input-wrapper">
+                    <label for="selectMetodo">Método de cifrado: </label>
+                    <select id="selectMetodo" class="">
+                        <option value="1" selected>Cifrado de césar</option>
+                        <option value="2">Cifrado de bloques simple</option>
+                        <option value="3">Algoritmo RSA</option>
+                    </select>
+                </div>
+                <div class="input-wrapper">
+                    <label for="tbTextoClaro">Texto claro: </label>
+                    <input type="text" id="tbTextoClaro" placeholder="Texto en claro">
+                </div>
+                <div class="input-wrapper">
+                    <label for="tbTextoCifrado">Texto cifrado: </label>
+                    <input type="text" id="tbTextoCifrado" placeholder="Texto cifrado">
+                </div>
+                <div class="input-wrapper">
+                    <label for="tbTextoDescifrado">Texto descifrado: </label>
+                    <input type="text" id="tbTextoDescifrado" readonly placeholder="Texto descifrado">
+                </div>
+
             </div>
             <div id="th3">
                 <div class="input-wrapper tbK">
@@ -48,10 +55,6 @@
                     <label for="tbChar">Salida caracter:</label>
                     <input type="text" id="tbChar" placeholder="k" readonly>
                 </div>
-                <!-- <div class="input-wrapper tbPatron">
-                    <label for="tbPatron">Patrón:</label>
-                    <input type="text" id="tbPatron" placeholder="Patrón">
-                </div> -->
                 <div class="input-wrapper tbP">
                     <label for="tbP">p:</label>
                     <input type="text" id="tbP" placeholder="p">
@@ -104,7 +107,9 @@
         .footer {
             margin-top: 450px;
         }
+
         .input-wrapper {
+            width: 100%;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -120,9 +125,9 @@
 
         .input-wrapper>#tbClavePublica,
         #tbClavePrivada,
-        #tbChar {
+        #tbChar,
+        #tbTextoClaro, #tbTextoCifrado, #tbTextoDescifrado {
             width: 60%;
-            justify-content: space-between;
         }
 
         .modal {
@@ -251,7 +256,7 @@
             height: 29px;
         }
 
-        #th2>input,
+        #th1>input,
         select {
             width: fit-content;
         }
