@@ -139,7 +139,9 @@ verTabla = () => {
             }
             k = Number(k);
             let abecedarioNormal = getAbecedario(0);
+            k = k % abecedarioNormal[0].length;
             let abecedarioCifrado = getAbecedario(k);
+            
             //let string = `Abecedario normal = ${abecedarioNormal[0]}\nAbecedario (k=${k}) = ${abecedarioCifrado[0]}`;
             mostrarModalTabla(generarTabla(abecedarioNormal[0], abecedarioCifrado[0], k));
             break;
